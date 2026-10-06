@@ -13,7 +13,7 @@ credentials*.json
 service-account*.json
 
 # Dados locais (apenas a pasta de relatórios e docs serão commitados)
-data/
+/data/
 
 # Outros
 .pytest_cache/
