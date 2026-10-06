@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel Econômico | Vértice Contábil</title>
+    <meta name="description" content="Dashboard de indicadores econômicos brasileiros (Selic, IPCA, IGP-M, Dólar) atualizado automaticamente.">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@500;700;800&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header class="header">
+        <div class="container header__inner">
+            <div class="logo">
+                <svg class="logo__mark" viewBox="0 0 64 64"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#34d399"/><stop offset="1" stop-color="#06b6d4"/></linearGradient></defs><rect width="64" height="64" rx="16" fill="rgba(255,255,255,.06)"/><path d="M14 18 L32 48 L50 18" fill="none" stroke="url(#g)" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <span>Vértice<strong>Contábil</strong></span>
+            </div>
+            <div class="header__info">
+                <h1>Painel Econômico</h1>
+                <p id="last-update">Atualizando...</p>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <!-- KPIs -->
+        <section class="kpis">
+            <div class="kpi-card glass">
+                <div class="kpi-card__header">
+                    <h3>Taxa Selic</h3>
+                    <span class="badge" title="Atual">Hoje</span>
+                </div>
+                <div class="kpi-card__value" id="kpi-selic">--</div>
+                <div class="kpi-card__desc">Meta definida pelo Copom</div>
+            </div>
+            
+            <div class="kpi-card glass">
+                <div class="kpi-card__header">
+                    <h3>Inflação (IPCA)</h3>
+                    <span class="badge" title="Acumulado">12 Meses</span>
+                </div>
+                <div class="kpi-card__value" id="kpi-ipca">--</div>
+                <div class="kpi-card__desc">Índice Nacional de Preços</div>
+            </div>
+            
+            <div class="kpi-card glass">
+                <div class="kpi-card__header">
+                    <h3>Juros Reais</h3>
+                    <span class="badge" title="Selic - IPCA (ex-post)">Ex-post</span>
+                </div>
+                <div class="kpi-card__value" id="kpi-juros">--</div>
+                <div class="kpi-card__desc">Rendimento acima da inflação</div>
+            </div>
+            
+            <div class="kpi-card glass">
+                <div class="kpi-card__header">
+                    <h3>Dólar (PTAX)</h3>
+                    <span class="badge" title="Média do último mês fechado">Mensal</span>
+                </div>
+                <div class="kpi-card__value" id="kpi-dolar">--</div>
+                <div class="kpi-card__desc">Cotação média de venda</div>
+            </div>
+        </section>
+
+        <!-- Filtros de tempo -->
+        <div class="filters">
+            <span class="filters__label">Visualizar:</span>
+            <div class="filter-group" role="group">
+                <button class="filter-btn is-active" data-months="12">1 Ano</button>
+                <button class="filter-btn" data-months="60">5 Anos</button>
+                <button class="filter-btn" data-months="0">Histórico Completo</button>
+            </div>
+        </div>
+
+        <!-- Gráficos -->
+        <section class="charts">
+            <div class="chart-container glass">
+                <div class="chart-header">
+                    <h2>Taxa de Juros vs Inflação</h2>
+                    <p>Selic Meta (final do mês) comparada com IPCA acumulado em 12 meses.</p>
+                </div>
+                <div class="canvas-wrap">
+                    <canvas id="chartSelicIpca"></canvas>
+                </div>
+            </div>
+            
+            <div class="chart-row">
+                <div class="chart-container glass">
+                    <div class="chart-header">
+                        <h2>Cotação do Dólar</h2>
+                        <p>Média mensal (PTAX Venda).</p>
+                    </div>
+                    <div class="canvas-wrap">
+                        <canvas id="chartDolar"></canvas>
+                    </div>
+                </div>
+                
+                <div class="chart-container glass">
+                    <div class="chart-header">
+                        <h2>Variação Mensal de Preços</h2>
+                        <p>IPCA vs IGP-M no mês corrente.</p>
+                    </div>
+                    <div class="canvas-wrap">
+                        <canvas id="chartInflacaoMensal"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>Os dados são extraídos diariamente do <a href="https://www3.bcb.gov.br/sgspub/" target="_blank">Sistema Gerenciador de Séries Temporais (SGS)</a> do Banco Central do Brasil.</p>
+            <p class="footer__author">Projeto fictício (Pipeline ETL) construído por <a href="https://github.com/gattz2020" target="_blank">João Marcelo (gattz2020)</a>.</p>
+            <a href="https://github.com/gattz2020/pipeline-indicadores-br" class="btn btn-github" target="_blank">
+                <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg>
+                Ver código no GitHub
+            </a>
+        </div>
+    </footer>
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>

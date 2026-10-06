@@ -1,0 +1,62 @@
+name: ETL Pipeline Diário
+
+on:
+  schedule:
+    # Executa de segunda a sexta às 08:00 BRT (11:00 UTC)
+    - cron: '0 11 * * 1-5'
+  workflow_dispatch: # Permite execução manual
+  push:
+    branches:
+      - main
+    paths:
+      - 'src/**'
+
+permissions:
+  contents: write
+
+jobs:
+  run-pipeline:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Configurar Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+
+      - name: Instalar dependências
+        run: pip install -r requirements.txt
+
+      - name: Rodar testes unitários
+        run: pytest tests/
+
+      - name: Autenticar no GCP (Opcional)
+        id: auth
+        # Só executa se o segredo existir no repositório
+        if: ${{ env.GCP_SA_KEY != '' }}
+        env:
+          GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Executar Pipeline (Local + BigQuery)
+        if: steps.auth.conclusion == 'success'
+        env:
+          GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+        run: python -m src.main --target all
+
+      - name: Executar Pipeline (Apenas Local)
+        if: steps.auth.conclusion == 'skipped'
+        run: python -m src.main --target local
+
+      - name: Commit e Push dos Relatórios e JSON
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs/data/indicadores.json reports/indicadores_economicos.xlsx
+          # Só faz commit se houver alguma diferença
+          git diff --staged --quiet || (git commit -m "chore: atualizar dados e relatórios diários" && git push)
